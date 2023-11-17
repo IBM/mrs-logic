@@ -57,17 +57,6 @@ To run the packaging and compatibility tests:
   tox
 #+end_src
 
-* Servers
-
-utool 
-
-: java -Xmx8g -server -jar utool/Utool-3.4.jar server --warmup --logging
-
-ukb
-
-: ~/work/wn/ukb/src/ukb_wsd --daemon --port 45678 --ppr -K ukb/wn30g.bin -D ukb/wn30_dict.txt
-: ~/work/wn/ukb/src/ukb_wsd --shutdown --port 45678
-
 * UKB
 
 The [[https://github.com/asoroa/ukb/blob/master/scripts/README#L39-L41][gloss relations file]] used by UKB need to be produced from the
@@ -89,14 +78,16 @@ In MacOS with boost installed via Homebrew
 
 Compile the grammar, notice the use of the `dict` config:
 
-: ace -g ~/hpsg/terg/ace/config-dict.tdl -G erg-dict.dat
+: ace -g PATH-TO-ERG/ace/config-dict.tdl -G erg.dat
+
+or download from http://sweaglesw.org/linguistics/ace/
 
 * Usefull Links
 
 - https://docs.python.org/3/library/venv.html
 - https://pydelphin.readthedocs.io/en/latest/
 - http://github.com/own-pt/delphin-rdf
-- http://sweaglesw.org/linguistics/ace/
+- http://sweaglesw.orog/linguistics/ace/
     - https://github.com/delph-in/docs/wiki/AceInstall
 - https://github.com/delph-in/docs/wiki/ErgTop
 - https://rdflib.readthedocs.io/en/stable/
