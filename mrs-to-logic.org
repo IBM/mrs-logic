@@ -1,0 +1,555 @@
+
+* introduction
+
+The step-by-step tentative process to produce FOL from MRS given by
+ERG to a NL sentence:
+
+#+begin_example
+given to gross intemperance in eating or drinking 
+#+end_example
+
+(definition of crapulous in WordNet 3.0)
+
+* the possible analyses
+
+We call 'readings'. This is 1 out of 702 readings:
+
+#+begin_example
+[ LTOP: h0
+  INDEX: e2 [ e SF: prop-or-ques TENSE: untensed MOOD: indicative ] 
+  RELS: <
+ [           _give_v_1<0:5> LBL: h1  ARG0: e4 ARG1: i5 ARG2: i3 ARG3: x6 ]
+ [             udef_q<9:37> LBL: h7  ARG0: x6 RSTR: h8 BODY: h9 ]
+ [         _gross_a_1<9:14> LBL: h10 ARG0: e11 ARG1: x6 ]
+ [ _intemperance_n_1<15:27> LBL: h10 ARG0: x6 ]
+ [         _in_p_loc<28:30> LBL: h10 ARG0: e12 ARG1: x6 ARG2: x13 [ x PERS: 3 NUM: sg GEND: n ] ]
+ [            udef_q<31:37> LBL: h14 ARG0: x13 RSTR: h15 BODY: h16 ]
+ [          _eat_v_1<31:37> LBL: h17 ARG0: e18 ARG1: i19 ARG2: i20 ]
+ [    nominalization<31:37> LBL: h21 ARG0: x13 ARG1: h17 ]
+ [             _or_c<38:40> LBL: h1  ARG0: e2 ARG1: e4 ARG2: e22 ]
+ [        _drink_v_1<41:49> LBL: h1  ARG0: e22 ARG1: i3 ARG2: i23 ] >
+HCONS: < h0 qeq h1 h8 qeq h10 h15 qeq h21 >
+ICONS: < e4 topic i3 > ]
+#+end_example
+
+* is it the right interpretation?
+
+At this point, we noticed that this interpretation is not the best
+one, it is taking the sentence as
+
+#+begin_example
+[given to gross intemperance in eating] or [drinking]
+#+end_example
+
+My understanding is:
+
+#+begin_example
+given to gross intemperance in [eating or drinking]
+#+end_example
+
+But we need to work with this.
+
+* labels and handlers
+
+Each LBL names a subformula with the HCONS restriction forming these
+tree-fragments:
+
+#+begin_example
+ h1: give(e4,i5,i3,x6) & or(e2,e4,e22) & drink(e22,i3,i23) 
+
+ h7: some(x6,h8,h9)
+  h10: gross(e11,x6) & intemperance(x6) & in(e12,x6,x13)
+  h??
+  
+ h14: some(x13,h15,h16)
+  h21: nominalization(x13,h17)
+  h??
+
+ h17: eat(e18,i19,i20)
+#+end_example
+
+Now we need to decide how the tree-fragments will be combined into a
+single tree (scope resolution). In h1 we use x6, this force h1 to be
+in the scope of h7. In h10 we use x13, forcing it to be in the scope
+of h14. The nominalization is taking h17 as argument. This give us the
+tree:
+
+#+begin_example
+ h14: some(x13,h15,h16) 
+  h21: nominalization(x13,h17)
+   h17: eat(e18,i19,i20)
+
+  h7: some(x6,h8,h9)
+   h10: gross(e11,x6) & intemperance(x6) & in(e12,x6,x13)
+   h1: give(e4,i5,i3,x6) & or(e2,e4,e22) & drink(e22,i3,i23)  
+#+end_example
+
+* MRS to a Logic Language
+
+Finally we can try to translate to some concrete logical language. The
+some quantifier is always translated as
+
+: some(x,F,G) = (exists x (and F G))
+
+#+begin_example
+(exists (x13)
+ (and
+  (nominalization x13 (eat e18 i19 i20))
+  (exists (x6)
+    (and
+      (and (gross e11 x6) (intemperance x6) (in e12 x6 x13))
+      (and (give e4 i5 i3 x6) (or e2 e4 e22) (drink e22 i3 i23)))
+#+end_example
+
+* nominalization
+
+How to interpret the nominalization? This is a formula inside another
+formula, beyond FOL. A possible rule is
+
+#+begin_example
+nominalization(ARG0 x, ARG1 h) {lemma}_v(LBL h) => {lemma}_n(ARG0 x)
+#+end_example
+
+Also supported by the derivation link in PWN between
+http://wn.mybluemix.net/synset?id=00838367-n and
+http://wn.mybluemix.net/synset?id=01166351-v (see drf links)
+
+#+begin_example
+(exists (x13)
+ (and
+  (eating x13)
+  (exists (x6)
+    (and
+      (and (gross e11 x6) (intemperance x6) (in e12 x6 x13))
+      (and (give e4 i5 i3 x6) (or e2 e4 e22) (drink e22 i3 i23))))))
+#+end_example
+
+We also have other grammatical operators. For example, compound predicate.
+
+- cow milk
+- green tea
+
+* instantiate implicit variables
+
+Finally we need to instantiate the event (e) variables:
+
+#+begin_example
+(exists (e11 e12 e4 e2 e22)
+ (exists (x13)
+  (and
+   (eating x13)
+   (exists (x6)
+     (and
+       (and (gross e11 x6) (intemperance x6) (in e12 x6 x13))
+       (and (give e4 i5 i3 x6) (or e2 e4 e22) (drink e22 i3 i23)))))))
+#+end_example
+
+Now how to deal with the un(i)nstantiated arguments? There are like
+unknowns but I can’t force them to exist. Maybe with universal?
+
+#+begin_example
+(forall (i5 i3 i23)
+ (exists (e11 e12 e4 e2 e22)
+  (exists (x13)
+   (and
+    (eating x13)
+    (exists (x6)
+      (and
+        (and (gross e11 x6) (intemperance x6) (in e12 x6 x13))
+        (and (give e4 i5 i3 x6) (or e2 e4 e22) (drink e22 i3 i23))))))))
+#+end_example
+
+* logical operators vs NL functional words
+
+Finally, the conjunction or can be translate to the logical operator
+(but that is not always trivial):
+
+#+begin_example
+(forall (i5 i3 i23)
+ (exists (e11 e12 e4 e2 e22)
+  (exists (x13)
+   (and
+    (eating x13)
+    (exists (x6)
+      (and
+        (and (gross e11 x6) (intemperance x6) (in e12 x6 x13))
+        (or (give e4 i5 i3 x6) (drink e22 i3 i23))))))))
+#+end_example
+
+After some simplifications
+
+#+begin_example
+(forall (i5 i3 i23)
+ (exists (e11 e12 e4 e2 e22 x13 x6)
+   (and
+    (eating x13) (gross e11 x6) (intemperance x6) (in e12 x6 x13)
+    (or (give e4 i5 i3 x6) (drink e22 i3 i23)))))
+#+end_example
+
+Some additional theory...
+
+#+begin_example
+(eating x) =>  ...
+(intemperance x) => (or (213 y) (456 y) (567 y))
+...
+#+end_example
+
+* errors
+
+> 508 There is no young lady with light brown hair wearing a red necklace, a sweatshirt and earrings and smiling
+[ TOP: h0
+  INDEX: e2
+  RELS: < [ _be_v_there<6:8> LBL: h1 ARG0: e2 ARG1: x4 ]
+          [ _no_q<9:11> LBL: h5 ARG0: x4 RSTR: h6 BODY: h7 ]
+          [ _young_a_1<12:17> LBL: h8 ARG0: e9 ARG1: x4 ]
+          [ _lady_n_1<18:22> LBL: h8 ARG0: x4 ]
+          [ _with_p<23:27> LBL: h8 ARG0: e10 ARG1: x4 ARG2: x11 ]
+          [ udef_q<28:106> LBL: h12 ARG0: x11 RSTR: h13 BODY: h14 ]
+          [ udef_q<28:44> LBL: h15 ARG0: x16 RSTR: h17 BODY: h18 ]
+          [ _light_a_of<28:33> LBL: h19 ARG0: e20 ARG1: x16 ]
+          [ _brown_a_1<34:39> LBL: h19 ARG0: e21 ARG1: x16 ]
+          [ _hair_n_1<40:44> LBL: h19 ARG0: x16 ]
+          [ nominalization<45:106> LBL: h22 ARG0: x11 ARG1: h23 ]
+          [ _wear_v_1<45:52> LBL: h23 ARG0: e24 ARG1: i25 ARG2: x26 ]
+          [ _a_q<53:54> LBL: h27 ARG0: x26 RSTR: h28 BODY: h29 ]
+          [ _red_a_1<55:58> LBL: h30 ARG0: e31 ARG1: x26 ]
+          [ _necklace_n_1<59:67> LBL: h30 ARG0: x26 ]
+          [ mod<69:94> LBL: h23 ARG0: e32 ARG1: e24 ARG2: x33 ]
+          [ _a_q<69:70> LBL: h34 ARG0: x33 RSTR: h35 BODY: h36 ]
+          [ udef_q<71:81> LBL: h37 ARG0: x38 RSTR: h39 BODY: h40 ]
+          [ _sweatshirt/nn_u_unknown<71:81> LBL: h41 ARG0: x38 ]
+          [ udef_q<82:94> LBL: h42 ARG0: x43 RSTR: h44 BODY: h45 ]
+          [ _and_c<82:85> LBL: h46 ARG0: x33 ARG1: x38 ARG2: x43 ]
+          [ _earring_n_1<86:94> LBL: h47 ARG0: x43 ]
+          [ _and_c<95:98> LBL: h23 ARG0: e48 ARG1: e24 ARG2: e49 ]
+          [ _smile_v_1<99:106> LBL: h23 ARG0: e49 ARG1: i25 ARG2: i50 ] >
+  HCONS: < h0 qeq h1 h6 qeq h8 h13 qeq h22 h17 qeq h19 h28 qeq h30 h35 qeq h46 h39 qeq h41 h44 qeq h47 > ]
+
+Sent: <error code='204' explanation='A semantic error occurred while decoding the graph.
+Sent: The graph is not leaf-labelled.
+Sent: The graph is not hypernormally connected.
+
+
+> 1290 A hole is being burrowed by the badger
+No error, but no result.
+
+> 1457 A prey is quickly running behind the cheetah
+No error, but no result.
+
+
+> 1467 Not everyone is able to walk a lion
+[ TOP: h0
+  INDEX: e2
+  RELS: < [ _not_x_deg<0:3> LBL: h4 ARG0: e5 ARG1: x3 ]
+          [ person<4:12> LBL: h6 ARG0: x3 ]
+          [ every_q<4:12> LBL: h4 ARG0: x3 RSTR: h7 BODY: h8 ]
+          [ _able_a_1<16:20> LBL: h1 ARG0: e2 ARG1: x3 ARG2: h9 ]
+          [ _walk_v_1<24:28> LBL: h10 ARG0: e11 ARG1: x3 ARG2: x12 ]
+          [ _a_q<29:30> LBL: h13 ARG0: x12 RSTR: h14 BODY: h15 ]
+          [ _lion_n_1<31:35> LBL: h16 ARG0: x12 ] >
+  HCONS: < h0 qeq h1 h7 qeq h6 h9 qeq h10 h14 qeq h16 > ]
+
+('h13', {'h14': 'h16', 'h15': 'h4', 'h7': 'h6', 'h8': 'h1', 'h9': 'h10'})
+('h4', {'h7': 'h6', 'h8': 'h1', 'h9': 'h13', 'h14': 'h16', 'h15': 'h10'})
+('h4', {'h7': 'h6', 'h8': 'h13', 'h14': 'h16', 'h15': 'h1', 'h9': 'h10'})
+
+but 'not' (h4) needs to be under the scope of 'every_q' (h4)... not
+imposed by utool because they are in the same label... es2form needs
+more work
+
+
+> 1481 The orange colored dices are being cast by a cook to win the pepper
+No error, but no result.
+
+The orange-colored dices are being cast by a cook to win the pepper.
+NOTE: 0 readings, added 9446 / 5305 edges to chart (1381 fully instantiated, 536 actives used, 1643 passives used)	RAM: 40726k
+SKIP: The orange-colored dices are being cast by a cook to win the pepper.
+
+The orange colored dices are being cast by a cook to win the pepper.
+NOTE: 0 readings, added 9022 / 5151 edges to chart (1347 fully instantiated, 492 actives used, 1594 passives used)	RAM: 39371k
+SKIP: The orange colored dices are being cast by a cook to win the pepper.
+
+
+> 1929 The man is cooking slices of potato
+No error, but no result.
+
+> 2293 The lady is penciling on eyeshadow
+No error, but no result.
+
+> 2294 The woman is penciling on eyeshadow
+No error, but no result.
+
+> 2296 The woman is not penciling on eyeshadow
+No error, but no result.
+
+ 
+> 2487 There is no woman driving a car and talking to the man seated beside her
+[ TOP: h0
+  INDEX: e2
+  RELS: < [ _be_v_there<6:8> LBL: h1 ARG0: e4 ARG1: x5 ]
+          [ _no_q<9:11> LBL: h6 ARG0: x5 RSTR: h7 BODY: h8 ]
+          [ _woman_n_1<12:17> LBL: h9 ARG0: x5 ]
+          [ _drive_v_1<18:25> LBL: h9 ARG0: e10 ARG1: x5 ARG2: x11 ]
+          [ _a_q<26:27> LBL: h12 ARG0: x11 RSTR: h13 BODY: h14 ]
+          [ _car_n_1<28:31> LBL: h15 ARG0: x11 ]
+          [ _and_c<32:35> LBL: h1 ARG0: e2 ARG1: e4 ARG2: e16 ]
+          [ udef_q<36:54> LBL: h17 ARG0: x18 RSTR: h19 BODY: h20 ]
+          [ nominalization<36:54> LBL: h21 ARG0: x18 ARG1: h22 ]
+          [ _talk_v_about<36:43> LBL: h22 ARG0: e23 ARG1: p24 ]
+          [ _to_p<44:46> LBL: h22 ARG0: e25 ARG1: e23 ARG2: x26 ]
+          [ _the_q<47:50> LBL: h27 ARG0: x26 RSTR: h28 BODY: h29 ]
+          [ _man_n_1<51:54> LBL: h30 ARG0: x26 ]
+          [ _seat_v_1<55:61> LBL: h1 ARG0: e16 ARG1: x18 ]
+          [ _beside_p_state<62:68> LBL: h1 ARG0: e31 ARG1: e16 ARG2: x32 ]
+          [ pron<69:72> LBL: h33 ARG0: x32 ]
+          [ pronoun_q<69:72> LBL: h34 ARG0: x32 RSTR: h35 BODY: h36 ] >
+  HCONS: < h0 qeq h1 h7 qeq h9 h13 qeq h15 h19 qeq h21 h28 qeq h30 h35 qeq h33 > ]
+
+Sent: <error code='192' explanation='A parsing error occurred while reading the input.
+Sent: de.saar.chorus.domgraph.codec.ParserException: de.saar.chorus.domgraph.codec.mrs.TokenMgrError: Lexical error at line 1, column 916.  Encountered: &quot;2&quot; (50), after : &quot;p&quot;
+Sent: ' />
+
+  arg of talk is p24 ??
+
+
+> 2857 A person is jotting something with a pencil
+ No error, but no result.
+
+
+> 3923 A man in a car is pulling up beside a woman that is who along a road
+[ TOP: h0
+  INDEX: e2
+  RELS: < [ _a_q<0:1> LBL: h4 ARG0: x3 RSTR: h5 BODY: h6 ]
+          [ _man_n_1<2:5> LBL: h7 ARG0: x3 ]
+          [ _in_p_loc<6:8> LBL: h7 ARG0: e8 ARG1: x3 ARG2: x9 ]
+          [ _a_q<9:10> LBL: h10 ARG0: x9 RSTR: h11 BODY: h12 ]
+          [ _car_n_1<11:14> LBL: h13 ARG0: x9 ]
+          [ _pull_v_1<18:25> LBL: h1 ARG0: e2 ARG1: x3 ARG2: x14 ARG3: h15 ]
+          [ _up_p<26:28> LBL: h16 ARG0: e17 ARG1: x14 ]
+          [ _beside_p_state<29:35> LBL: h16 ARG0: e18 ARG1: e17 ARG2: x19 ]
+          [ _a_q<36:37> LBL: h20 ARG0: x19 RSTR: h21 BODY: h22 ]
+          [ _woman_n_1<38:43> LBL: h23 ARG0: x19 ]
+          [ generic_entity<44:48> LBL: h24 ARG0: x25 ]
+          [ _that_q_dem<44:48> LBL: h26 ARG0: x25 RSTR: h27 BODY: h28 ]
+          [ _be_v_id<49:51> LBL: h23 ARG0: e29 ARG1: x25 ARG2: x19 ]
+          [ person<52:55> LBL: h30 ARG0: x14 ]
+          [ which_q<52:55> LBL: h31 ARG0: x14 RSTR: h32 BODY: h33 ]
+          [ _along_p<56:61> LBL: h34 ARG0: e35 ARG1: x14 ARG2: x36 ]
+          [ _a_q<62:63> LBL: h37 ARG0: x36 RSTR: h38 BODY: h39 ]
+          [ _road_n_1<64:68> LBL: h40 ARG0: x36 ARG1: u41 ] >
+  HCONS: < h0 qeq h1 h5 qeq h7 h11 qeq h13 h15 qeq h16 h21 qeq h23 h27 qeq h24 h32 qeq h30 h38 qeq h40 > ]
+
+Sent: <error code='200' explanation='A semantic error occurred while decoding the graph.
+Sent: The dominance children h1 and h34 of the root h31 are not hypernormally connected with each other.
+Sent: ' />
+
+> 4344 A man is drawing on a digital dry erase board
+No error, but no result.
+
+> 4347 A man is not drawing on a digital dry erase board
+No error, but no result.
+
+> 4732 One man in a big city is holding up a sign and begging for money
+[ TOP: h0
+  INDEX: e2
+  RELS: < [ udef_q<0:3> LBL: h4 ARG0: x3 RSTR: h5 BODY: h6 ]
+          [ card<0:3> LBL: h7 ARG0: e9 ARG1: x3 CARG: "1" ]
+          [ _man_n_1<4:7> LBL: h7 ARG0: x3 ]
+          [ _in_p_loc<8:10> LBL: h7 ARG0: e10 ARG1: x3 ARG2: x11 ]
+          [ _a_q<11:12> LBL: h12 ARG0: x11 RSTR: h13 BODY: h14 ]
+          [ _big_a_1<13:16> LBL: h15 ARG0: e16 ARG1: x11 ]
+          [ _city_n_1<17:21> LBL: h15 ARG0: x11 ]
+          [ _hold_v_up<25:32> LBL: h1 ARG0: e17 ARG1: x3 ARG2: x18 ]
+          [ _a_q<36:37> LBL: h19 ARG0: x18 RSTR: h20 BODY: h21 ]
+          [ _sign_n_of<38:42> LBL: h22 ARG0: x18 ARG1: i23 ]
+          [ _and_c<43:46> LBL: h1 ARG0: e2 ARG1: e17 ARG2: e24 ]
+          [ _beg_v_for<47:54> LBL: h1 ARG0: e24 ARG1: x3 ARG2: p25 ARG3: x26 ]
+          [ udef_q<59:64> LBL: h27 ARG0: x26 RSTR: h28 BODY: h29 ]
+          [ _money_n_1<59:64> LBL: h30 ARG0: x26 ] >
+  HCONS: < h0 qeq h1 h5 qeq h7 h13 qeq h15 h20 qeq h22 h28 qeq h30 > ]
+
+ Sent: <error code='192' explanation='A parsing error occurred while reading the input.
+ Sent: de.saar.chorus.domgraph.codec.ParserException: de.saar.chorus.domgraph.codec.mrs.TokenMgrError: Lexical error at line 1, column 1151.  Encountered: &quot;2&quot; (50), after : &quot;p&quot;
+ Sent: ' />  
+
+ see _beg_v_for p25 argument 
+ same for 4733 4736 4738
+
+> 4929 A malnourished looking dog is standing on its hind legs and preparing to jump
+[ TOP: h0
+  INDEX: e2
+  RELS: < [ _a_q<0:1> LBL: h4 ARG0: x3 RSTR: h5 BODY: h6 ]
+          [ _malnourished/jj_u_unknown<2:14> LBL: h7 ARG0: e8 ARG1: u9 ]
+          [ _look_v_on<15:22> LBL: h10 ARG0: e11 ARG1: x3 ]
+          [ _dog_n_1<23:26> LBL: h10 ARG0: x3 ]
+          [ _stand_v_1<30:38> LBL: h1 ARG0: e12 ARG1: x3 ]
+          [ _on_p_state<39:41> LBL: h1 ARG0: e13 ARG1: e12 ARG2: x14 ]
+          [ def_explicit_q<42:45> LBL: h15 ARG0: x14 RSTR: h16 BODY: h17 ]
+          [ poss<42:45> LBL: h18 ARG0: e19 ARG1: x14 ARG2: x20 ]
+          [ pronoun_q<42:45> LBL: h21 ARG0: x20 RSTR: h22 BODY: h23 ]
+          [ pron<42:45> LBL: h24 ARG0: x20 ]
+          [ _hind/jj_u_unknown<46:50> LBL: h18 ARG0: e25 ARG1: x14 ]
+          [ _leg_n_1<51:55> LBL: h18 ARG0: x14 ]
+          [ _and_c<56:59> LBL: h1 ARG0: e2 ARG1: e12 ARG2: e26 ]
+          [ _prepare_v_1<60:69> LBL: h1 ARG0: e26 ARG1: x3 ARG2: h27 ]
+          [ _jump_v_1<73:77> LBL: h28 ARG0: e29 ARG1: x3 ] >
+  HCONS: < h0 qeq h1 h5 qeq h10 h16 qeq h18 h22 qeq h24 h27 qeq h28 > ]
+
+  Sent: <error code='200' explanation='A semantic error occurred while decoding the graph.
+  Sent: The graph is not hypernormally connected.
+  Sent: ' />
+
+  Same 4930
+
+
+> 5227 A yellow flower is being clung to by a bee
+No error, but no result.
+
+> 5263 A hurdle is being leapt by a horse that has a rider on its back
+No error, but no result.
+
+
+> 5373 There is no large brown dog and small grey dog standing on a rocky surface
+[ TOP: h0
+  INDEX: e2
+  RELS: < [ _be_v_there<6:8> LBL: h1 ARG0: e2 ARG1: x4 ]
+          [ _no_q<9:11> LBL: h5 ARG0: x4 RSTR: h6 BODY: h7 ]
+          [ _large_a_1<12:17> LBL: h8 ARG0: e9 ARG1: x4 ]
+          [ _brown_a_1<18:23> LBL: h8 ARG0: e10 ARG1: x4 ]
+          [ compound<24:42> LBL: h11 ARG0: e12 ARG1: x4 ARG2: x13 ]
+          [ udef_q<24:42> LBL: h14 ARG0: x13 RSTR: h15 BODY: h16 ]
+          [ _dog_n_1<24:27> LBL: h11 ARG0: x13 ]
+          [ _and_c<28:31> LBL: h8 ARG0: e17 ARG1: e12 ARG2: e18 ]
+          [ subord<32:37> LBL: h19 ARG0: e20 ARG1: h21 ARG2: h22 ]
+          [ _small_a_1<32:37> LBL: h23 ARG0: e24 ARG1: i25 ]
+          [ _grey_a_1<38:42> LBL: h19 ARG0: e18 ARG1: x4 ]
+          [ _dog_n_1<43:46> LBL: h8 ARG0: x4 ]
+          [ _stand_v_1<47:55> LBL: h8 ARG0: e26 ARG1: x4 ]
+          [ _on_p_state<56:58> LBL: h8 ARG0: e27 ARG1: e26 ARG2: x28 ]
+          [ _a_q<59:60> LBL: h29 ARG0: x28 RSTR: h30 BODY: h31 ]
+          [ _rocky_a_1<61:66> LBL: h32 ARG0: e33 ARG1: x28 ]
+          [ _surface_n_1<67:74> LBL: h32 ARG0: x28 ] >
+  HCONS: < h0 qeq h1 h6 qeq h8 h15 qeq h11 h21 qeq h8 h22 qeq h23 h30 qeq h32 > ]
+
+  Sent: <error code='200' explanation='A semantic error occurred while decoding the graph.
+  Sent: The dominance children h1 and h11 of the root h5 are not hypernormally connected with each other.
+  Sent: ' />
+ 
+  
+> 5690 There is no brown dog and black dog playing in the sand
+[ TOP: h0
+  INDEX: e2
+  RELS: < [ _be_v_there<6:8> LBL: h1 ARG0: e2 ARG1: x4 ]
+          [ _no_q<9:11> LBL: h5 ARG0: x4 RSTR: h6 BODY: h7 ]
+          [ _brown_a_1<12:17> LBL: h8 ARG0: e9 ARG1: x4 ]
+          [ compound<18:31> LBL: h10 ARG0: e11 ARG1: x4 ARG2: x12 ]
+          [ udef_q<18:31> LBL: h13 ARG0: x12 RSTR: h14 BODY: h15 ]
+          [ _dog_n_1<18:21> LBL: h10 ARG0: x12 ]
+          [ _and_c<22:25> LBL: h8 ARG0: e16 ARG1: e11 ARG2: e17 ]
+          [ _black_a_1<26:31> LBL: h8 ARG0: e17 ARG1: x4 ]
+          [ _dog_n_1<32:35> LBL: h8 ARG0: x4 ]
+          [ _play_v_1<36:43> LBL: h8 ARG0: e18 ARG1: x4 ARG2: i19 ]
+          [ _in_p_state<44:46> LBL: h8 ARG0: e20 ARG1: e18 ARG2: x21 ]
+          [ _the_q<47:50> LBL: h22 ARG0: x21 RSTR: h23 BODY: h24 ]
+          [ _sand_n_1<51:55> LBL: h25 ARG0: x21 ] >
+  HCONS: < h0 qeq h1 h6 qeq h8 h14 qeq h10 h23 qeq h25 > ]
+
+  Sent: <error code='200' explanation='A semantic error occurred while decoding the graph.
+  Sent: The dominance children h1 and h10 of the root h5 are not hypernormally connected with each other.
+  Sent: ' />
+
+
+> 5980 A man in a white shirt and sunglasses and a man in a black shirt and sunglasses are sitting at a table with four bottles of beer
+
+  Sent: <result solvable='true' count='4860850' fragments='25'  chartsize='2132'  time-chart='38'  time-extraction='159701' >  
+
+  same for 5981
+
+> 6524 A topless woman is being smeared with brown substance and a nobody is in the background
+No error, but no result.
+
+> 6837 A young man in a white shirt and gold and black hat is sitting with crossed legs
+[ TOP: h0
+  INDEX: e2
+  RELS: < [ _a_q<0:1> LBL: h4 ARG0: x3 RSTR: h5 BODY: h6 ]
+          [ _young_a_1<2:7> LBL: h7 ARG0: e8 ARG1: x3 ]
+          [ _man_n_1<8:11> LBL: h7 ARG0: x3 ]
+          [ _in_p_loc<12:14> LBL: h7 ARG0: e9 ARG1: x3 ARG2: x10 ]
+          [ _a_q<15:16> LBL: h11 ARG0: x10 RSTR: h12 BODY: h13 ]
+          [ compound<17:37> LBL: h14 ARG0: e15 ARG1: x10 ARG2: x16 ]
+          [ udef_q<17:37> LBL: h17 ARG0: x18 RSTR: h19 BODY: h20 ]
+          [ _white_a_1<17:22> LBL: h14 ARG0: i21 ARG1: x10 ]
+          [ udef_q<23:28> LBL: h22 ARG0: x23 RSTR: h24 BODY: h25 ]
+          [ implicit_conj<23:37> LBL: h26 ARG0: x18 ARG1: i21 ARG2: x16 ]
+          [ udef_q<29:37> LBL: h27 ARG0: x16 RSTR: h28 BODY: h29 ]
+          [ _shirt_n_1<23:28> LBL: h30 ARG0: x23 ]
+          [ udef_q<29:37> LBL: h31 ARG0: x32 RSTR: h33 BODY: h34 ]
+          [ _and_c<29:32> LBL: h35 ARG0: x16 ARG1: x23 ARG2: x32 ]
+          [ _gold_n_1<33:37> LBL: h36 ARG0: x32 ]
+          [ _and_c<38:41> LBL: h14 ARG0: e37 ARG1: e38 ARG2: e39 ]
+          [ _black_a_1<42:47> LBL: h14 ARG0: e39 ARG1: i40 ]
+          [ _hat_n_1<48:51> LBL: h14 ARG0: x10 ]
+          [ _sit_v_1<55:62> LBL: h1 ARG0: e2 ARG1: x3 ]
+          [ _with_p<63:67> LBL: h1 ARG0: e41 ARG1: e2 ARG2: x42 ]
+          [ udef_q<68:80> LBL: h43 ARG0: x42 RSTR: h44 BODY: h45 ]
+          [ _cross_v_1<68:75> LBL: h46 ARG0: e47 ARG1: i48 ARG2: x42 ]
+          [ _leg_n_1<76:80> LBL: h46 ARG0: x42 ] >
+  HCONS: < h0 qeq h1 h5 qeq h7 h12 qeq h14 h19 qeq h26 h24 qeq h30 h28 qeq h35 h33 qeq h36 h44 qeq h46 > ]
+
+  Sent: <error code='200' explanation='A semantic error occurred while decoding the graph.
+  Sent: The dominance children h14 and h26 of the root h27 are not hypernormally connected with each other.
+  Sent: ' />
+
+  same 6838 6840
+
+
+> 6845 A girl in blue sweater is holding a multicolor toy and is sitting on the shoulders of an old man with grey hair
+ No error, but no result.
+
+ same 6846 6848
+
+
+> 6949 A man with a white hat and brown shirt is behind a woman in red and is looking to the left
+[ TOP: h0
+  INDEX: e2
+  RELS: < [ _a_q<0:1> LBL: h4 ARG0: x3 RSTR: h5 BODY: h6 ]
+          [ _man_n_1<2:5> LBL: h7 ARG0: x3 ]
+          [ _with_p<6:10> LBL: h7 ARG0: e8 ARG1: x3 ARG2: x9 ]
+          [ _a_q<11:12> LBL: h10 ARG0: x9 RSTR: h11 BODY: h12 ]
+          [ _white_a_1<13:18> LBL: h13 ARG0: e14 ARG1: x9 ]
+          [ compound<19:32> LBL: h15 ARG0: e16 ARG1: x9 ARG2: x17 ]
+          [ udef_q<19:32> LBL: h18 ARG0: x17 RSTR: h19 BODY: h20 ]
+          [ _hat_n_1<19:22> LBL: h15 ARG0: x17 ]
+          [ _and_c<23:26> LBL: h13 ARG0: e21 ARG1: e16 ARG2: e22 ]
+          [ _brown_a_1<27:32> LBL: h13 ARG0: e22 ARG1: x9 ]
+          [ _shirt_n_1<33:38> LBL: h13 ARG0: x9 ]
+          [ _behind_p<42:48> LBL: h1 ARG0: e23 ARG1: x3 ARG2: x24 ]
+          [ _a_q<49:50> LBL: h25 ARG0: x24 RSTR: h26 BODY: h27 ]
+          [ _woman_n_1<51:56> LBL: h28 ARG0: x24 ]
+          [ _in_p_loc<57:59> LBL: h28 ARG0: e29 ARG1: x24 ARG2: x30 ]
+          [ udef_q<60:63> LBL: h31 ARG0: x30 RSTR: h32 BODY: h33 ]
+          [ _red_a_1<60:63> LBL: h34 ARG0: x30 ARG1: i35 ]
+          [ _and_c<64:67> LBL: h1 ARG0: e2 ARG1: e23 ARG2: e36 ]
+          [ _look_v_to<71:78> LBL: h1 ARG0: e36 ARG1: x3 ARG2: x37 ]
+          [ _the_q<82:85> LBL: h38 ARG0: x37 RSTR: h39 BODY: h40 ]
+          [ _left_n_of<86:90> LBL: h41 ARG0: x37 ARG1: i42 ] >
+  HCONS: < h0 qeq h1 h5 qeq h7 h11 qeq h13 h19 qeq h15 h26 qeq h28 h32 qeq h34 h39 qeq h41 > ]
+
+
+  Sent: <error code='200' explanation='A semantic error occurred while decoding the graph.
+  Sent: The dominance children h15 and h7 of the root h10 are not hypernormally connected with each other.
+  Sent: ' />
+
+  same 6950 6952
+
+> 7157 A boy is wearing all black and is sliding down a blow up yellow slide
+ No error, but no result.
+
+ but parsed with blow-up
+ same 7158 7160
+
+
+> 7296 A cyclist is biking in a snowy forest at day
+ No error, but no result. 
+
+ 

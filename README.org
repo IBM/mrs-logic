@@ -1,0 +1,105 @@
+#+title: A Semantic Parsing Toolkit for English utterances to ULKB
+
+* About
+
+A Semantic Parsing Toolkit that, using ERG Grammar, parse a sentece to
+MRS and transform the MRS in a ULKB Logic sentence.
+
+* Step-by-Step
+
+See [[file:mrs-to-logic.org]]
+
+Ideas from
+http://svn.delph-in.net/lkb/branches/fos/src/tproving/gq-to-fol.lisp
+
+* Dependencies
+
+- Ace https://github.com/delph-in/docs/wiki/AceInstall
+- ERG Grammar https://github.com/delph-in/docs/wiki/ErgTop
+- The python library https://pydelphin.readthedocs.io
+- Utool https://github.com/coli-saar/utool/releases/tag/utool-3.4 (Java)
+- ukb (C program, https://github.com/asoroa/ukb)
+- ULKB Logic https://github.ibm.com/IBM-Research-AI/ULKB
+
+* To test
+
+#+begin_src bash
+  python3 -m venv venv
+  source venv/bin/activate
+  pip install pip --upgrade
+  pip install pydelphin
+  pip intall -e .
+  pip install jupyterlab
+  jupyter-lab
+#+end_src
+
+See nb/demo
+
+** Unit tests
+
+Make sure you have the test dependencies:
+
+#+begin_src
+  pytest
+#+end_src
+
+To run the testsuite and generate a coverage report (==htmlcov==):
+
+#+begin_src
+  pytest
+#+end_src
+
+To run the packaging and compatibility tests:
+
+#+begin_src
+  export ACE_GRAMMAR=<path to grammar file>
+  export TOX_TESTENV_PASSENV=ACE_GRAMMAR
+  tox
+#+end_src
+
+* Servers
+
+utool 
+
+: java -Xmx8g -server -jar utool/Utool-3.4.jar server --warmup --logging
+
+ukb
+
+: ~/work/wn/ukb/src/ukb_wsd --daemon --port 45678 --ppr -K ukb/wn30g.bin -D ukb/wn30_dict.txt
+: ~/work/wn/ukb/src/ukb_wsd --shutdown --port 45678
+
+* UKB
+
+The [[https://github.com/asoroa/ukb/blob/master/scripts/README#L39-L41][gloss relations file]] used by UKB need to be produced from the
+updated annotations. The code below will generate a file called
+=ukb/wn30_gloss_rel.txt=. This file will be used in the ccc cluster
+for produce the =wn30g.bin= input for the UKB main code.
+
+See glossta-kg how to generate new wn30_gloss_rel.txt
+
+In MacOS with boost installed via Homebrew
+
+#+begin_src bash
+  % cd ukb-source-folder/src
+  % ./configure --with-boost-include=/usr/local/include/
+  % make
+#+end_src
+
+* Grammar
+
+Compile the grammar, notice the use of the `dict` config:
+
+: ace -g ~/hpsg/terg/ace/config-dict.tdl -G erg-dict.dat
+
+* Usefull Links
+
+- https://docs.python.org/3/library/venv.html
+- https://pydelphin.readthedocs.io/en/latest/
+- http://github.com/own-pt/delphin-rdf
+- http://sweaglesw.org/linguistics/ace/
+    - https://github.com/delph-in/docs/wiki/AceInstall
+- https://github.com/delph-in/docs/wiki/ErgTop
+- https://rdflib.readthedocs.io/en/stable/
+    - https://www.w3.org/TR/rdf-primer/
+- https://franz.com/agraph/support/documentation/current/docker.html
+- https://www.coli.uni-saarland.de/projects/chorus/utool/
