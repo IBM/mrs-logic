@@ -114,7 +114,6 @@ class Solution(util.Base):
             self, format=ConverterPydot.format, context=self.context,
             **kwargs)
 
-    @util.lru_cache
     def to_ulkb(self, context=None, **kwargs):
         """Converts solution to ULKB formula.
 
