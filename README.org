@@ -14,12 +14,15 @@ http://svn.delph-in.net/lkb/branches/fos/src/tproving/gq-to-fol.lisp
 
 * Dependencies
 
+- ULKB Logic https://github.com/IBM/ULKB
 - Ace https://github.com/delph-in/docs/wiki/AceInstall
 - ERG Grammar https://github.com/delph-in/docs/wiki/ErgTop
 - The python library https://pydelphin.readthedocs.io
+- UKB (C program, https://github.com/asoroa/ukb)
+
+This is installed with MRS-Logic:
+
 - Utool https://github.com/coli-saar/utool/releases/tag/utool-3.4 (Java)
-- ukb (C program, https://github.com/asoroa/ukb)
-- ULKB Logic https://github.ibm.com/IBM-Research-AI/ULKB
 
 * To test
 
