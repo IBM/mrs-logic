@@ -1,3 +1,7 @@
 /.coverage
 /erg.dat
 /venv
+
+**/__pycache__/
+
+mrs_logic.egg-info/
