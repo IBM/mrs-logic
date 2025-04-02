@@ -30,6 +30,7 @@ class Solver(util.Base):
         self._mrs = mrs
         self._mrs.icons = []    # UTool  can't handler ICONS.
         self._scopes = self._mrs.scopes()[1]
+        print(self._mrs.scopes())
         self._scopes_set = set(self._scopes)
 
         pmap = {}

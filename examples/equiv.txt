@@ -1,0 +1,59 @@
+udef_q(X, _a_q(Y, Z)) = _a_q(Y, udef_q(X, Z))
+udef_q(_a_q(Y, Z), X) = _a_q(udef_q(Y, X), Z)
+udef_q(X, _a_q(Y, Z)) = _a_q(udef_q(X, Y), Z)
+udef_q(_a_q(Y, Z), X) = _a_q(Y, udef_q(Z, X))
+
+udef_q(X, pronoun_q(Y, Z)) = pronoun_q(Y, udef_q(X, Z))
+udef_q(pronoun_q(Y, Z), X) = pronoun_q(udef_q(Y, X), Z)
+udef_q(X, pronoun_q(Y, Z)) = pronoun_q(udef_q(X, Y), Z)
+udef_q(pronoun_q(Y, Z), X) = pronoun_q(Y, udef_q(Z, X))
+
+_the_q(X, pronoun_q(Y, Z)) = pronoun_q(Y, _the_q(X, Z))
+_the_q(pronoun_q(Y, Z), X) = pronoun_q(_the_q(Y, X), Z)
+_the_q(X, pronoun_q(Y, Z)) = pronoun_q(_the_q(X, Y), Z)
+_the_q(pronoun_q(Y, Z), X) = pronoun_q(Y, _the_q(Z, X))
+
+udef_q(X, def_explicit_q(Y, Z)) = def_explicit_q(Y, udef_q(X, Z))
+udef_q(def_explicit_q(Y, Z), X) = def_explicit_q(udef_q(Y, X), Z)
+udef_q(X, def_explicit_q(Y, Z)) = def_explicit_q(udef_q(X, Y), Z)
+udef_q(def_explicit_q(Y, Z), X) = def_explicit_q(Y, udef_q(Z, X))
+
+pronoun_q(X, a_q(Y, Z)) = _a_q(Y, pronoun_q(X, Z))
+pronoun_q(a_q(Y, Z), X) = _a_q(pronoun_q(Y, X), Z)
+pronoun_q(X, a_q(Y, Z)) = _a_q(pronoun_q(X, Y), Z)
+pronoun_q(a_q(Y, Z), X) = _a_q(Y, pronoun_q(Z, X))
+
+pronoun_q(X, def_explicit_q(Y, Z)) = _def_explicit_q(Y, pronoun_q(X, Z))
+pronoun_q(def_explicit_q(Y, Z), X) = _def_explicit_q(pronoun_q(Y, X), Z)
+pronoun_q(X, def_explicit_q(Y, Z)) = _def_explicit_q(pronoun_q(X, Y), Z)
+pronoun_q(def_explicit_q(Y, Z), X) = _def_explicit_q(Y, pronoun_q(Z, X))
+
+udef_q#1(X, udef_q(Y,Z)) = udef_q(Y, udef_q#1(X,Z))
+udef_q#1(udef_q(Y,Z), X) = udef_q(udef_q#1(X,Y), Z)
+udef_q#1(X, udef_q(Y,Z)) = udef_q(udef_q#1(Y,X), Z)
+udef_q#1(udef_q(Y,Z), X) = udef_q(Y, udef_q#1(Z,X))
+
+_a_q#1(X, _a_q(Y, Z)) = _a_q(Y, _a_q#1(X, Z))
+_a_q#1(_a_q(Y, Z), X) = _a_q(_a_q#1(Y, X), Z)
+_a_q#1(X, _a_q(Y, Z)) = _a_q(_a_q#1(X, Y), Z)
+_a_q#1(_a_q(Y, Z), X) = _a_q(Y, _a_q#1(Z, X))
+
+
+start annotation: +
+neutral annotation: 0
+
++: udef_q(-,+)
+-: udef_q(+,-)
+
++: _every_q(-,+)
+-: _every_q(+,-)
+
++: _a_q(+,+)
+-: _a_q(-,-)
+
++: pronoun_q(+,+)
+-: pronoun_q(-,-)
+
++: _the_q(+,+)
+-: _the_q(-,-)
+
